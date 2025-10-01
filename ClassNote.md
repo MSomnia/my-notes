@@ -515,3 +515,377 @@ Lossy compression schemes give significantly greater compression than lossless s
 ![1758733331223](ClassNote/1758733331223.png)
 
 - Decompression is achieved by reversing the effect of compression stages
+
+
+
+w4
+
+# Codeword Encoding
+
+- The assignment of binary sequences to elements of an alphabet
+- An alphabet is a collection of symbols
+- The set of of binary sequences is called a code / codebook
+- An individual member of a code is called codeword
+
+### Encoding
+
+Fixed-length codes
+
+- the simplest way to do encoding
+- any codeword has the same number of bits
+- the average bit rate per symbol is equal to the codeword length
+
+Variable number of bits
+
+- to represent individual symbol, if we want to reduce the number of bits required to represent various messages
+- if we use fewer bits to represent symbols that occur more often, we will use fewer bits per symbol (on average)
+
+### Decoding
+
+- the conversion from a codeword to the corresponding element in the alphabet
+- A code is called ***uniquely decodable code***, if, and only if, for any collection of codewords with any order, you will always have one, and only one way, to decode these codewords (without any ambiguity)
+
+## Uniquely Decodable Codes
+
+Example 1:
+
+* a 1→ 0
+  a 2→ 1
+  a 3→ 00
+  a 4→ 11
+* Each symbol in the above code has a unique codeword
+* However, if we want to encode a 1 a 1, we will use 00, which can be decoded as a 3as well; hence the above code is not a uniquely decodable code
+
+Example 2:
+
+* a 1→ 0
+  a 2→ 10
+  a 3→ 110
+  a 4→ 111
+* The first three codewords all end in a 0
+* The final codeword contains no 0sand is a 3 bits long
+* This is a uniquely decodable code
+* The decoding rule for this code is to accumulate bits until
+  * you get a 0 or
+  * until you have three 1’s
+* the decoder knows the completion of a codeword from its bits only, i.e., without reading next codeword(s)
+  * **instantaneous code**
+
+Example 3:
+
+* a 1→ 0
+  a 2→ 01
+  a 3→ 011
+  a 4→ 0111
+* Each codeword starts with a 0
+* The only time we see a 0is at the beginning of a codeword
+* This is a uniquely decodable code
+* The decoding rule for this code is even simpler:
+  * accumulate bits until you see a 0
+* the decoder has to wait till reading the next codeword(s) to know that the current codeword is completed
+  * not instantaneous
+
+Uniquely decodable code is not required to have the instantaneous decoding property
+
+### Systematic procedure
+
+Definitions:
+
+- Suppose we have two binary codewords a and b, where
+
+  - a is k bits long
+  - b is n bits long
+  - k < n
+- If the first k bits in b are identical to a, then
+
+  - a is called a prefix of b
+  - The last n–k bits of b are called the dangling suffix
+- Example:
+  if a= 010 and b= 01011
+
+  - a is a prefix of b
+  - The dangling suffix is 11
+
+### Procedure to test for unique decodability
+
+- Examine all pairs of codewords
+  - Whenever you find a codeword that is a prefixof another codeword
+    - If the dangling suffixis equal to any of the original codeword,
+      Then
+      The code is NOT a uniquely decodable code
+      Else
+      Add the dangling suffix to the augmented codeword list, unless you have added the same dangling suffix to the list in a previous iteration
+- Repeat the above step, but this time between each codeword and each dangling suffix (but not between two dangling suffixes) until one of the following two things occurs
+  - You geta dangling suffix that is equal to any of the original
+    codeword (the code is NOT a uniquely decodable code)
+  - There are no more unique dangling suffixes to be added to the list
+    (the code is a uniquely decodable code)
+
+### **Example A**
+
+- Code: `a1 → 0`, `a2 → 01`, `a3 → 11`
+- Steps:
+  - Initial list: `{0, 01, 11}`
+  - `0` is prefix of `01` → dangling suffix = `1` → added.
+  - New list: `{0, 01, 11, 1}`
+  - `1` is prefix of `11` → dangling suffix = `1` (already included).
+- **Result**: No dangling suffix matches an original codeword → ✅ **Uniquely Decodable**
+
+### **Example B**
+
+- Code: `a1 → 0`, `a2 → 01`, `a3 → 10`
+- Steps:
+  - Initial list: `{0, 01, 10}`
+  - `0` is prefix of `01` → dangling suffix = `1` → added.
+  - New list: `{0, 01, 10, 1}`
+  - `1` is prefix of `10` → dangling suffix = `0` (which is codeword `a1`).
+- **Result**: ❌ **Not Uniquely Decodable**
+- **Counterexample**:
+  - Concatenation: `010`
+  - Interpretations:
+    - `a2 a1`
+    - `a1 a3`
+
+### **Example C**
+
+- Code:
+  - `a1 → 101`
+  - `a2 → 1011`
+  - `a3 → 0100`
+  - `a4 → 00101`
+- Steps:
+  - Multiple dangling suffixes produced (`r1, r2, r3, r4, r5`).
+  - Found `r5 = 101`, which equals `a1`.
+- **Result**: ❌ **Not Uniquely Decodable**
+- **Counter example**:
+  - Sequence: `10110100101`
+  - Interpretations:
+    - `a1 a1 a4`
+    - `a2 a3 a1`
+
+NB1: This method does not test if a code is instantaneous (decodable without lookahead).
+
+NB2:
+
+- If no codeword is a prefix of another → prefix-free code.
+- Prefix-free codes:
+  - Always uniquely decodable.
+  - Always instantaneous.
+- But uniquely decodable codes are not necessarily prefix-free (Example A shows this).
+
+![1759333842390](images/ClassNote/1759333842390.png)
+
+
+
+# Huffman Encoding
+
+Symbols with higher probabilities to occur are assigned shorter prefix-free codes
+
+- consequently, the generated code will be a uniquely decodable codeas well
+  as an instantaneous code
+
+## Huffman Encoding (Procedure)
+
+- **Goal**: Build an optimal prefix-free code based on symbol probabilities.
+- **Steps**:
+  1. Start with symbols as unmarked nodes with weights (frequency or probability).
+  2. While more than one node remains:
+     - Select two nodes with the lowest weights.
+     - Create a parent node whose weight = sum of the two.
+     - Label the paths arbitrarily with `0` and `1`.
+     - Mark the two children.
+  3. Codewords are formed by concatenating labels from **root → leaf**.
+
+### Huffman Encoding Example (Setup)
+
+- **Symbols**: `R = {r1, r2, r3, r4, r5, r6}`
+- **Probabilities**:
+  - P(r1) = 20/32
+  - P(r2) = 3/32
+  - P(r3) = 3/32
+  - P(r4) = 1/32
+  - P(r5) = 4/32
+  - P(r6) = 1/32
+- **Task**:
+  - Construct Huffman code.
+  - Compute **average bit rate per symbol**.
+
+### Huffman Encoding (Tree Construction Process)
+
+- Intermediate steps of combining lowest-probability nodes into parent nodes.
+- Building up the Huffman tree progressively.
+- ![1759334248390](images/ClassNote/1759334248390.png)
+
+### First Assigned Code
+
+- **Assignments** (partial):
+  - r1: `0`
+- ![1759334270031](images/ClassNote/1759334270031.png)
+
+### Continued Assignment
+
+- **Assignments**:
+  - r1: `0`
+  - r2: `100`
+- ![1759334291556](images/ClassNote/1759334291556.png)
+
+### Continued Assignment
+
+- **Assignments**:
+  - r1: `0`
+  - r2: `100`
+  - r3: `110`
+- ![1759334320117](images/ClassNote/1759334320117.png)
+
+### Continued Assignment
+
+- **Assignments**:
+  - r1: `0`
+  - r2: `100`
+  - r3: `110`
+  - r4: `1010`
+- ![1759334344947](images/ClassNote/1759334344947.png)
+
+### Continued Assignment
+
+- **Assignments**:
+  - r1: `0`
+  - r2: `100`
+  - r3: `110`
+  - r4: `1010`
+  - r5: `111`
+- ![1759334373336](images/ClassNote/1759334373336.png)
+
+### Final Huffman Code Assignments
+
+- **Final mapping**:
+  - r1: `0`
+  - r2: `100`
+  - r3: `110`
+  - r4: `1010`
+  - r5: `111`
+  - r6: `1011`
+- ![1759334397099](images/ClassNote/1759334397099.png)
+
+### Average Bit Rate Calculation
+
+- **Table Summary**:
+
+
+| Symbol | Probability | Codeword | Length | Contribution |
+| ------ | ----------- | -------- | ------ | ------------ |
+| r1     | 20/32       | 0        | 1      | 20/32 bits   |
+| r2     | 3/32        | 100      | 3      | 9/32 bits    |
+| r3     | 3/32        | 110      | 3      | 9/32 bits    |
+| r4     | 1/32        | 1010     | 4      | 4/32 bits    |
+| r5     | 4/32        | 111      | 3      | 12/32 bits   |
+| r6     | 1/32        | 1011     | 4      | 4/32 bits    |
+
+- **Total = 58/32 = 1.8125 bits/symbol**
+- **Average Bit Rate = 1.8125 bits per symbol**
+
+### Drawing a Huffman Tree
+
+- Start from a single root node
+- **Tree Properties**:
+
+  - Each node is either:
+    - A leaf (external node) with no children. (zero branch)
+    - An internal node with exactly 2 children. (two branches)
+  - Convention:
+    - Left branch = `0`
+    - Right branch = `1`
+
+![1759334563979](images/ClassNote/1759334563979.png)
+
+
+## How to Generate Huffman Codes or Tree
+
+![1759334878205](images/ClassNote/1759334878205.png)
+
+![1759334893799](images/ClassNote/1759334893799.png)
+
+- To generate Huffman codes, or a Huffman tree, you only need the locations of the joint pairs in backward order; i.e.,
+  - (1,2)
+  - (2,3)
+  - (3,5)
+  - (2,4)
+  - (4,6)
+- The number of these pairs is equal to
+  - the total number of symbols – 1
+
+### How to generate Huffman Codes
+
+![1759335001083](images/ClassNote/1759335001083.png)
+
+![1759335067791](images/ClassNote/1759335067791.png)
+
+![1759335079536](images/ClassNote/1759335079536.png)
+
+![1759335090544](images/ClassNote/1759335090544.png)
+
+![1759335102182](images/ClassNote/1759335102182.png)
+
+**Huffman Codes are used during the encoding process**
+
+### Huffman Encoding Procedure
+
+- While the end-of-symbols-need-to-be-encoded is not reached
+  - Read a single symbol from the input data
+  - Find the corresponding Huffman code for that symbol
+  - Concatenate this Huffman code to the compressed Huffman data
+- ![1759335231000](images/ClassNote/1759335231000.png)
+
+### How to Generate a Huffman Tree
+
+![1759335270234](images/ClassNote/1759335270234.png)
+
+![1759335282281](images/ClassNote/1759335282281.png)
+
+![1759335292533](images/ClassNote/1759335292533.png)
+
+![1759335302043](images/ClassNote/1759335302043.png)
+
+![1759335312492](images/ClassNote/1759335312492.png)
+
+![1759335322851](images/ClassNote/1759335322851.png)
+
+**Huffman Tree is used during the decoding process**
+
+## Huffman Decoding Procedure
+
+- While the end-of-compressed-Huffman-data is not reached
+  - current node= root node
+  - While the current nodeis not a leaf node
+    - Read a single bit from the compressed Huffman data
+    - If it is 0, go to the left child node and declare it as the current node
+    - If it is 1, go to the right child node and declare it as the current node
+  - Get the decoded symbol from the current node
+- ![1759335460188](images/ClassNote/1759335460188.png)
+
+### Example
+
+Consider a set of symbols R = {r 1, r 2, r 3, r 4}
+The probability of occurrence of these symbols are:
+
+- P(r 1) = 1/8
+- P(r 2) = 1/8
+- P(r 3) = 1/4
+- P(r 4) = 1/2
+
+![1759335536028](images/ClassNote/1759335536028.png)
+
+![1759335548159](images/ClassNote/1759335548159.png)
+
+![1759335557883](images/ClassNote/1759335557883.png)
+
+### Another Example
+
+- Consider a set of symbols R = {r 1, r 2, r 3, r 4}
+- The probability of occurrence of these symbols is:
+  - P(r 1) = 1/4
+  - P(r 2) = 1/4
+  - P(r 3) = 1/4
+  - P(r 4) = 1/4
+
+![1759335616813](images/ClassNote/1759335616813.png)
