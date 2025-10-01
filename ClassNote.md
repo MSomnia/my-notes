@@ -182,7 +182,7 @@ week 2
   - $G = Y - 0.344136 \cdot Cb - 0.714136 \cdot Cr$
 - **Conversion between RGB and YCbCr spaces, using linear transformations**
 
-  - ![1758122369879](images/ClassNote/1758122369879.png)
+  - ![1758122369879](ClassNote/1758122369879.png)
 - Range: (0, 128, 128) - (255, 128, 128)
 - Green is negative
 
@@ -221,13 +221,13 @@ week 2
   - ranges from black at value 0 at the bottom
   - ranges to white at value 1 at the top
 - **Relationship between RGB and HSI models**
-  - ![1758126003084](images/ClassNote/1758126003084.png)
+  - ![1758126003084](ClassNote/1758126003084.png)
   - Vertical = intensity (black → white)
   - Around the middle = hue (red, yellow, green, cyan, blue, magenta)
   - Distance from center = saturation
 - **Conversion from RGB to HSI**
-  - ![1758126283212](images/ClassNote/1758126283212.png)
-  - ![1758126311248](images/ClassNote/1758126311248.png)
+  - ![1758126283212](ClassNote/1758126283212.png)
+  - ![1758126311248](ClassNote/1758126311248.png)
 
 ### Gray-Scale
 
@@ -296,7 +296,6 @@ week 3
   - tiff - 'pnmtotiff'
 - to debug a PNM binary file, use 'od -cx'
 
-
 ## PBM - Portable Bit Map
 
 ### PBM header
@@ -360,7 +359,6 @@ week 3
 - any pixel value greater than the maximum color value will likely be interpreted as 0
 - if P6 is selected, image data must be stored as raw bits in three bytes (or six bytes) per pixel (red, green, blue)
   - the maximum color value decides three or six bytes per pixel
-
 
 # Compression
 
@@ -474,7 +472,7 @@ Lossy compression schemes give significantly greater compression than lossless s
   - the original image
   - the compressed-then-decompressed image
 - Metrics: MAE, RMSE, SNR, PSNR, MSSIM
-- ![1758732672922](images/ClassNote/1758732672922.png)
+- ![1758732672922](ClassNote/1758732672922.png)
 - Although RMSE, SNR, and PSNR are widely used in lossy
   compression literature, they are sometimes misleading and
   not indicative of the actual loss of fidelity
@@ -486,7 +484,7 @@ Lossy compression schemes give significantly greater compression than lossless s
 
 - a method for measuring the similarity between two images
 - is designed to improve on traditional methods like PSNR and RMSE
-- ![1758732886060](images/ClassNote/1758732886060.png)
+- ![1758732886060](ClassNote/1758732886060.png)
 - The resultant SSIMindex is a decimal value between -1 and 1:
   - value 1 is only reachable in the case of two identical sets of data
 - Typically, it is calculated on window sizes of 8×8
@@ -495,7 +493,7 @@ Lossy compression schemes give significantly greater compression than lossless s
 
 ## Image Compression Model
 
-![1758733306870](images/ClassNote/1758733306870.png)
+![1758733306870](ClassNote/1758733306870.png)
 
 - image compression can be characterized by three independent stages:
   - Transformation (mapping)
@@ -514,6 +512,6 @@ Lossy compression schemes give significantly greater compression than lossless s
     - Creates a fixed-length, or variable-length, code to represent the quantized values
     - In case of variable-length encoding, the shortest codewords are assigned to the most frequently occurring quantized values, and thus reduces the encoding redundancy
 
-![1758733331223](images/ClassNote/1758733331223.png)
+![1758733331223](ClassNote/1758733331223.png)
 
 - Decompression is achieved by reversing the effect of compression stages
